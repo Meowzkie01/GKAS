@@ -154,7 +154,7 @@
         <div class="logo">GKAS</div>
         <div class="tagline">Your trusted digital wallet</div>
 
-        <form onsubmit="event.preventDefault();">
+        <form onsubmit="loginUser(event)">
             <div class="input-group">
                 <label for="username">Username or Mobile Number</label>
                 <input type="text" id="username" placeholder="e.g., 0917XXXXXXX" required>
@@ -178,6 +178,47 @@
             <a href="#">Forgot Password?</a>
         </div>
     </div>
+
+    <script>
+    function loginUser(event) {
+        event.preventDefault();
+
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+
+        const users = [
+            {
+                username: "09184540238",
+                password: "1234",
+                name: "Juan Dela Cruz",
+                balance: 5000
+            },
+            {
+                username: "09398875272",
+                password: "5678",
+                name: "Maria Santos",
+                balance: 7500
+            },
+            {
+                username: "admin",
+                password: "admin123",
+                name: "GKAS Administrator",
+                balance: 100000
+            }
+        ];
+
+        const user = users.find(
+            u => u.username === username && u.password === password
+        );
+
+        if (user) {
+            localStorage.setItem("gkasUser", JSON.stringify(user));
+            window.location.href = "dashboard.html";
+        } else {
+            alert("Invalid username or password.");
+        }
+    }
+    </script>
 
 </body>
 </html>

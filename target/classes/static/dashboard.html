@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GKAS - Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f4f6f9;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 40px 20px;
+        }
+
+        /* Two-Column Responsive Grid Layout */
+        .dashboard-container {
+            background-color: #ffffff;
+            width: 100%;
+            max-width: 960px;
+            height: 80vh;
+            max-height: 700px;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+        }
+
+        /* Left Section Styles */
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            background-color: #ffffff;
+            border-right: 1px solid #eef2f6;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* Header Area */
+        .header {
+            background: linear-gradient(135deg, #0052cc 0%, #003399 100%);
+            padding: 25px 25px;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .logo-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .welcome-msg {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 2px;
+        }
+
+        .btn-logout {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-logout:hover {
+            background-color: rgba(255, 255, 255, 0.25);
+        }
+
+        /* Balance Section */
+        .balance-card {
+            text-align: left;
+        }
+
+        .balance-label {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.75);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+
+        .balance-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .balance-amount {
+            font-size: 2.4rem;
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .btn-add-balance {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 18px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
+            transition: background-color 0.2s, transform 0.1s;
+            white-space: nowrap;
+        }
+
+        .btn-add-balance:hover {
+            background-color: #218838;
+        }
+
+        .btn-add-balance:active {
+            transform: scale(0.97);
+        }
+
+        /* Main Content Actions Grid - Enforced Square Aspect Ratio */
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            padding: 25px;
+            flex-shrink: 0;
+        }
+
+        .action-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+            text-decoration: none;
+            color: #333;
+            justify-content: center;
+            border-radius: 16px;
+            background-color: #f8fafc;
+            transition: background-color 0.2s;
+            aspect-ratio: 1 / 1;
+        }
+
+        .action-item:hover {
+            background-color: #f0f4f8;
+        }
+
+        .icon-wrapper {
+            width: 50px;
+            height: 50px;
+            background-color: rgba(0, 82, 204, 0.08);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 8px;
+            transition: transform 0.2s;
+            color: #0052cc;
+            flex-shrink: 0;
+        }
+
+        .action-item:hover .icon-wrapper {
+            transform: translateY(-2px);
+        }
+
+        .action-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #444;
+        }
+
+        /* Ads Panel Component Container */
+        .ads-container {
+            padding: 0 25px 25px 25px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .ad-banner {
+            width: 100%;
+            height: 100%;
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        /* Dynamic Color Themes for Ads */
+        .ad-theme-blue {
+            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+            border: 1px solid #bae6fd;
+            color: #0369a1;
+        }
+        .ad-theme-blue .ad-tag { background-color: rgba(0, 82, 204, 0.1); color: #0052cc; }
+        .ad-theme-blue .ad-desc { color: #0c4a6e; }
+        .ad-theme-blue .ad-btn { background-color: #0052cc; color: white; }
+
+        .ad-theme-purple {
+            background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+            border: 1px solid #e9d5ff;
+            color: #6b21a8;
+        }
+        .ad-theme-purple .ad-tag { background-color: rgba(107, 33, 168, 0.1); color: #6b21a8; }
+        .ad-theme-purple .ad-desc { color: #4c1d95; }
+        .ad-theme-purple .ad-btn { background-color: #6b21a8; color: white; }
+
+        .ad-theme-amber {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 1px solid #fde68a;
+            color: #92400e;
+        }
+        .ad-theme-amber .ad-tag { background-color: rgba(146, 64, 14, 0.1); color: #92400e; }
+        .ad-theme-amber .ad-desc { color: #78350f; }
+        .ad-theme-amber .ad-btn { background-color: #92400e; color: white; }
+
+        .ad-tag {
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 6px;
+            align-self: flex-start;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .ad-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-top: 10px;
+            line-height: 1.3;
+        }
+
+        .ad-desc {
+            font-size: 0.8rem;
+            margin-top: 4px;
+        }
+
+        .ad-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+        }
+
+        .ad-btn {
+            border: none;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Right Section Styles (Transactions Placement) */
+        .transactions-section {
+            padding: 25px;
+            background-color: #fcfdfe;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 20px;
+            position: sticky;
+            top: 0;
+            background-color: #fcfdfe;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #f0f2f5;
+            z-index: 10;
+        }
+
+        .transaction-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .transaction-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f0f2f5;
+        }
+
+        .transaction-card:last-child {
+            border-bottom: none;
+        }
+
+        .tx-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .tx-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .tx-icon.received {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+        }
+
+        .tx-icon.sent {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+        }
+
+        .tx-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tx-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #333;
+            line-height: 1.3;
+        }
+
+        .tx-date {
+            font-size: 0.75rem;
+            color: #888;
+            margin-top: 3px;
+        }
+
+        .tx-right {
+            text-align: right;
+            padding-left: 10px;
+        }
+
+        .tx-amount {
+            font-size: 0.95rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .tx-amount.positive {
+            color: #28a745;
+        }
+
+        .tx-amount.negative {
+            color: #333;
+        }
+
+        /* Fallback Adjustment for Mobile Views */
+        @media (max-width: 768px) {
+            .dashboard-container {
+                grid-template-columns: 1fr;
+                height: auto;
+                max-height: none;
+            }
+            .left-panel {
+                border-right: none;
+                border-bottom: 8px solid #f4f6f9;
+                height: auto;
+            }
+            .action-item {
+                aspect-ratio: auto;
+                padding: 15px 10px;
+            }
+            .ads-container {
+                height: 160px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <!-- Left Side Split: Accounts & Balance Core Management -->
+        <div class="left-panel">
+            <div class="header">
+                <div class="header-top">
+                    <div class="logo-group">
+                        <div class="logo">GKAS</div>
+                        <div class="welcome-msg" id="welcome-msg">Hello, User!</div>
+                    </div>
+                    <button class="btn-logout" onclick="logoutUser()">Logout</button>
+                </div>
+                <div class="balance-card">
+                    <div class="balance-label">Available Balance</div>
+                    <div class="balance-row">
+                        <div class="balance-amount" id="balance-display">₱ 0.00</div>
+                        <button class="btn-add-balance" onclick="window.location.href='cashin.html'">+ Cash In</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Square Quick Action Items Grid Layout -->
+            <div class="actions-grid">
+                <a href="send.html" class="action-item">
+                    <div class="icon-wrapper">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                    </div>
+                    <span class="action-label">Send Money</span>
+                </a>
+
+                <a href="bank.html" class="action-item">
+                    <div class="icon-wrapper">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+                    </div>
+                    <span class="action-label">Bank Transfer</span>
+                </a>
+
+                <a href="qr.html" class="action-item">
+                    <div class="icon-wrapper">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    </div>
+                    <span class="action-label">Scan QR</span>
+                </a>
+            </div>
+
+            <!-- Dynamic Random Ads Container Split Placement -->
+            <div class="ads-container" id="dynamic-ad-slot">
+                <!-- Injected via JavaScript below -->
+            </div>
+        </div>
+
+        <!-- Right Side Split: Recent Transactions Sidebar Frame -->
+        <div class="transactions-section">
+            <div class="section-title">Recent Transactions</div>
+            <div class="transaction-list"></div>
+        </div>
+    </div>
+
+<script>
+// Define collection database targeting exactly 3 distinct promotional contexts
+const promotionalAds = [
+    {
+        tag: "Promotions",
+        title: "Upgrade to GKAS Plus",
+        desc: "Unlock higher transaction limits and zero processing fees this month.",
+        btnText: "Learn More",
+        themeClass: "ad-theme-blue"
+    },
+    {
+        tag: "Security",
+        title: "Secure Your Account",
+        desc: "Enable two-factor biometrics now to safeguard your active wallet assets.",
+        btnText: "Setup Now",
+        themeClass: "ad-theme-purple"
+    },
+    {
+        tag: "Cashback",
+        title: "Shop & Earn 5% Back",
+        desc: "Get exclusive cash returns instantly when paying via QR codes at select partners.",
+        btnText: "View Shops",
+        themeClass: "ad-theme-amber"
+    }
+];
+
+document.addEventListener("DOMContentLoaded", () => {
+    displayRandomAd();
+    renderDashboard();
+});
+
+function displayRandomAd() {
+    const randomIndex = Math.floor(Math.random() * promotionalAds.length);
+    const selectedAd = promotionalAds[randomIndex];
+    const adSlot = document.getElementById("dynamic-ad-slot");
+
+    adSlot.innerHTML = `
+        <div class="ad-banner ${selectedAd.themeClass}">
+            <div>
+                <span class="ad-tag">${selectedAd.tag}</span>
+                <div class="ad-title">${selectedAd.title}</div>
+                <div class="ad-desc">${selectedAd.desc}</div>
+            </div>
+            <div class="ad-footer">
+                <button class="ad-btn">${selectedAd.btnText}</button>
+            </div>
+        </div>
+    `;
+}
+
+function renderDashboard() {
+    const userData = localStorage.getItem("gkasUser");
+
+    if (!userData) {
+        window.location.href = "index.html";
+        return;
+    }
+
+    const user = JSON.parse(userData);
+
+    document.getElementById("welcome-msg").innerText = `Hello, ${user.name}!`;
+    document.getElementById("balance-display").innerText = `₱ ${user.balance.toLocaleString('en-US', {
+        minimumFractionDigits: 2
+    })}`;
+
+    const history = JSON.parse(localStorage.getItem("gkasHistory")) || [];
+    const container = document.querySelector(".transaction-list");
+
+    container.innerHTML = "";
+
+    if (history.length === 0) {
+        container.innerHTML = `
+            <div style="text-align:center; padding:20px; color:#888; font-size:0.9rem;">
+                No recent transactions found.
+            </div>
+        `;
+        return;
+    }
+
+    const uniqueHistory = history.filter(
+        (tx, index, self) =>
+            index === self.findIndex(
+                t => t.name === tx.name && t.amount === tx.amount && t.date === tx.date
+            )
+    );
+
+    uniqueHistory.forEach(tx => {
+        const card = document.createElement("div");
+        card.className = "transaction-card";
+
+        const amount = parseFloat(tx.amount);
+        const formattedAmount = `₱ ${Math.abs(amount).toLocaleString('en-US', {
+            minimumFractionDigits: 2
+        })}`;
+
+        card.innerHTML = `
+            <div class="tx-left">
+                <div class="tx-icon ${tx.isNegative ? 'sent' : 'received'}">
+                    ${tx.isNegative ? '−' : '+'}
+                </div>
+                <div class="tx-details">
+                    <span class="tx-name">${tx.name}</span>
+                    <span class="tx-date">${tx.date}</span>
+                </div>
+            </div>
+            <div class="tx-right">
+                <span class="tx-amount ${tx.isNegative ? 'negative' : 'positive'}">
+                    ${tx.isNegative ? '-' : '+'}${formattedAmount}
+                </span>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+function logoutUser() {
+    localStorage.removeItem("gkasUser");
+    window.location.href = "index.html";
+}
+</script>
+</body>
+</html>

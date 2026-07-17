@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GKAS - QR Services</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f4f6f9;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px 0;
+        }
+
+        .qr-container {
+            background-color: #ffffff;
+            width: 100%;
+            max-width: 420px;
+            min-height: 90vh;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0052cc 0%, #003399 100%);
+            padding: 20px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn-back {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header h1 {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        /* Toggle Navigation Tabs */
+        .qr-tabs {
+            display: flex;
+            background-color: #fff;
+            border-bottom: 1px solid #e1e8f5;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 15px 10px;
+            border: none;
+            background: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #666;
+            cursor: pointer;
+            text-align: center;
+            transition: color 0.2s;
+            position: relative;
+        }
+
+        .tab-btn.active {
+            color: #0052cc;
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background-color: #0052cc;
+        }
+
+        /* Content Frames */
+        .tab-content {
+            padding: 30px 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .content-panel {
+            display: none;
+            width: 100%;
+            text-align: center;
+        }
+
+        .content-panel.active {
+            display: block;
+        }
+
+        /* Scan Window Mock UI */
+        .scanner-view {
+            width: 260px;
+            height: 260px;
+            border: 4px solid #0052cc;
+            border-radius: 20px;
+            margin: 0 auto 25px auto;
+            position: relative;
+            background-color: #111;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .scanner-line {
+            position: absolute;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #00ff66, transparent);
+            top: 0;
+            animation: scanAnimation 2s linear infinite;
+            box-shadow: 0 0 8px #00ff66;
+        }
+
+        @keyframes scanAnimation {
+            0% { top: 0%; }
+            50% { top: 100%; }
+            100% { top: 0%; }
+        }
+
+        .scanner-placeholder-icon {
+            color: rgba(255, 255, 255, 0.2);
+        }
+
+        .panel-instruction {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.4;
+            max-width: 280px;
+            margin: 0 auto;
+        }
+
+        /* Generate Options Block */
+        .form-box {
+            background-color: #f8faff;
+            border: 1px solid #e1e8f5;
+            border-radius: 16px;
+            padding: 25px 20px;
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        .form-box label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 8px;
+        }
+
+        .form-box input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .form-box input:focus {
+            border-color: #0052cc;
+        }
+
+        .btn-action {
+            width: 100%;
+            padding: 14px;
+            background-color: #0052cc;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 82, 204, 0.2);
+            transition: background-color 0.2s;
+        }
+
+        .btn-action:hover {
+            background-color: #0041a3;
+        }
+
+        /* Modal Overlay for Showing the Generated QR Window */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease-in-out;
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .qr-window {
+            background-color: white;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 360px;
+            padding: 30px 24px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            transform: scale(0.9);
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .modal-overlay.open .qr-window {
+            transform: scale(1);
+        }
+
+        .qr-frame {
+            width: 200px;
+            height: 200px;
+            background-color: #f8f9fa;
+            border: 1px solid #e1e8f5;
+            border-radius: 16px;
+            margin: 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* Faux QR Code Graphic block styling */
+        .faux-qr {
+            width: 160px;
+            height: 160px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+        }
+        .qr-block { background-color: #222; border-radius: 2px; }
+        .qr-block:nth-child(2n) { background-color: transparent; }
+        .qr-block.corner { border: 6px solid #222; background-color: transparent; }
+
+        .window-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #222;
+        }
+
+        .window-user {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .window-amount {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #0052cc;
+            margin-top: 10px;
+        }
+
+        .btn-close-window {
+            margin-top: 20px;
+            background-color: #f0f2f5;
+            color: #333;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.2s;
+        }
+
+        .btn-close-window:hover {
+            background-color: #e4e6eb;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="qr-container">
+        <!-- Header area -->
+        <div class="header">
+            <button class="btn-back" onclick="goToDashboard()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            </button>
+            <h1>QR Services</h1>
+        </div>
+
+        <!-- Section Tabs Switcher -->
+        <div class="qr-tabs">
+            <button class="tab-btn active" onclick="switchTab('scan')">Scan QR Code</button>
+            <button class="tab-btn" onclick="switchTab('generate')">Generate QR / Receive</button>
+        </div>
+
+        <!-- Center Work Area Contents -->
+        <div class="tab-content">
+            
+            <!-- Panel A: Scanner Interface Mockup -->
+            <div id="panel-scan" class="content-panel active">
+                <div class="scanner-view">
+                    <div class="scanner-line"></div>
+                    <div class="scanner-placeholder-icon">
+                        <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                    </div>
+                </div>
+                <p class="panel-instruction">Align a merchant or peer GKAS QR code within the frame setup to automatically read and capture transaction pathways.</p>
+            </div>
+
+            <!-- Panel B: Code Generator Panel Setup -->
+            <div id="panel-generate" class="content-panel">
+                <div class="form-box">
+                    <label for="receive-amount">Request Specific Amount (Optional)</label>
+                    <input type="number" id="receive-amount" placeholder="0.00" min="0" step="0.01">
+                </div>
+                <button class="btn-action" onclick="openQRWindow()">Generate QR Window</button>
+                <p class="panel-instruction" style="margin-top: 20px;">Or simply generate a clean static token mapping directly back onto your profile workspace identity parameters.</p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Target Output Presentation QR Popup Window -->
+    <div id="qr-modal" class="modal-overlay" onclick="closeQRWindowOuter(event)">
+        <div class="qr-window">
+            <div class="window-title">Your GKAS QR Code</div>
+            <div class="window-user" id="qr-account-owner">Loading Profile...</div>
+            
+            <div class="qr-frame">
+                <!-- Faux styling blocks rendering layout framework patterns -->
+                <div class="faux-qr">
+                    <div class="qr-block corner"></div><div class="qr-block"></div><div class="qr-block"></div><div class="qr-block corner"></div>
+                    <div class="qr-block"></div><div class="qr-block"></div><div class="qr-block"></div><div class="qr-block"></div>
+                    <div class="qr-block"></div><div class="qr-block"></div><div class="qr-block"></div><div class="qr-block"></div>
+                    <div class="qr-block corner"></div><div class="qr-block"></div><div class="qr-block"></div><div class="qr-block"></div>
+                </div>
+            </div>
+
+            <div class="window-amount" id="qr-amount-display" style="display: none;">₱ 0.00</div>
+            <p class="panel-instruction">Show this code to a sender to receive funds safely directly inside your electronic ledger tracking framework.</p>
+            
+            <button class="btn-close-window" onclick="closeQRWindow()">Dismiss Code</button>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const userData = localStorage.getItem("gkasUser");
+            if (!userData) {
+                window.location.href = "index.html";
+                return;
+            }
+            currentUser = JSON.parse(userData);
+            document.getElementById("qr-account-owner").innerText = currentUser.name;
+        });
+
+        function switchTab(targetTab) {
+            // Manage active styles over target navigation decks
+            const tabs = document.querySelectorAll('.tab-btn');
+            const panels = document.querySelectorAll('.content-panel');
+
+            tabs.forEach(tab => tab.classList.remove('active'));
+            panels.forEach(panel => panel.classList.remove('active'));
+
+            if (targetTab === 'scan') {
+                tabs[0].classList.add('active');
+                document.getElementById('panel-scan').classList.add('active');
+            } else {
+                tabs[1].classList.add('active');
+                document.getElementById('panel-generate').classList.add('active');
+            }
+        }
+
+        function openQRWindow() {
+            const amountInput = document.getElementById("receive-amount").value;
+            const amountDisplay = document.getElementById("qr-amount-display");
+
+            if (amountInput && parseFloat(amountInput) > 0) {
+                const formattedAmount = parseFloat(amountInput).toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+                amountDisplay.innerText = `₱ ${formattedAmount}`;
+                amountDisplay.style.display = "block";
+            } else {
+                amountDisplay.style.display = "none";
+            }
+
+            document.getElementById("qr-modal").classList.add("open");
+        }
+
+        function closeQRWindow() {
+            document.getElementById("qr-modal").classList.remove("open");
+            document.getElementById("receive-amount").value = ""; // Clear input on close
+        }
+
+        function closeQRWindowOuter(event) {
+            // Dismiss if clicking background dark overlay area safely
+            if (event.target.id === "qr-modal") {
+                closeQRWindow();
+            }
+        }
+
+        function goToDashboard() {
+            window.location.href = "dashboard.html";
+        }
+    </script>
+</body>
+</html>

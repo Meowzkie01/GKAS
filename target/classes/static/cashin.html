@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GKAS - Cash In</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f4f6f9;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px 0;
+        }
+
+        .cashin-container {
+            background-color: #ffffff;
+            width: 100%;
+            max-width: 420px;
+            min-height: 90vh;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0052cc 0%, #003399 100%);
+            padding: 20px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn-back {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header h1 {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .content {
+            padding: 25px 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .method-select {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #e1e8f5;
+            border-radius: 12px;
+            font-size: 1rem;
+            background-color: #f8faff;
+            outline: none;
+            font-weight: 500;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .method-select:focus {
+            border-color: #0052cc;
+        }
+
+        .amount-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .currency-symbol {
+            position: absolute;
+            left: 16px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .amount-input {
+            width: 100%;
+            padding: 16px 16px 16px 45px;
+            border: 1px solid #e1e8f5;
+            border-radius: 12px;
+            font-size: 1.8rem;
+            font-weight: 700;
+            background-color: #f8faff;
+            outline: none;
+            color: #0052cc;
+        }
+
+        .amount-input:focus {
+            border-color: #0052cc;
+            background-color: #fff;
+        }
+
+        /* Quick Amount Badges */
+        .quick-amounts {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .amount-badge {
+            background-color: #f0f2f5;
+            border: 1px solid transparent;
+            padding: 10px 5px;
+            text-align: center;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #555;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .amount-badge:hover {
+            background-color: #e4e6eb;
+            color: #222;
+        }
+
+        .amount-badge:active {
+            transform: scale(0.95);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 15px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
+            margin-top: auto;
+            transition: background-color 0.2s;
+        }
+
+        .btn-submit:hover {
+            background-color: #218838;
+        }
+
+        .instruction-box {
+            background-color: #fdf8e2;
+            border: 1px solid #fcf0bd;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 25px;
+            font-size: 0.85rem;
+            color: #6d5700;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="cashin-container">
+        <!-- Header -->
+        <div class="header">
+            <button class="btn-back" onclick="goToDashboard()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            </button>
+            <h1>Cash In</h1>
+        </div>
+
+        <!-- Content Area Form -->
+        <div class="content">
+            <form id="cashin-form" onsubmit="processCashIn(event)">
+                
+                <!-- Payment Method Selection -->
+                <div class="form-group">
+                    <label for="cashin-method">Select Payment Method</label>
+                    <select id="cashin-method" class="method-select">
+                        <option value="Linked Bank Account">Linked Bank Account</option>
+                        <option value="Over-the-Counter Partner">Over-the-Counter (7-Eleven / Palawan)</option>
+                        <option value="Debit Card">Online Visa/Mastercard Debit</option>
+                        <option value="Linked E-Wallet">Other Linked E-Wallet</option>
+                    </select>
+                </div>
+
+                <!-- Input Numeric Funds -->
+                <div class="form-group">
+                    <label for="cashin-amount">Amount to Cash In</label>
+                    <div class="amount-input-wrapper">
+                        <span class="currency-symbol">₱</span>
+                        <input type="number" id="cashin-amount" class="amount-input" placeholder="0.00" min="1" step="0.01" required>
+                    </div>
+                    
+                    <!-- Quick Select Tags -->
+                    <div class="quick-amounts">
+                        <div class="amount-badge" onclick="setAmount(100)">100</div>
+                        <div class="amount-badge" onclick="setAmount(500)">500</div>
+                        <div class="amount-badge" onclick="setAmount(1000)">1k</div>
+                        <div class="amount-badge" onclick="setAmount(5000)">5k</div>
+                    </div>
+                </div>
+
+                <div class="instruction-box">
+                    Funds processed through secure channels reflect inside your balance engine immediately. Transaction fees may vary based on external gateway integrations.
+                </div>
+
+                <button type="submit" class="btn-submit">Confirm Cash In</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // Verify session security baseline
+            if (!localStorage.getItem("gkasUser")) {
+                window.location.href = "index.html";
+            }
+        });
+
+        function setAmount(val) {
+            document.getElementById("cashin-amount").value = val;
+        }
+
+        function processCashIn(event) {
+            event.preventDefault();
+            
+            const amountInput = document.getElementById("cashin-amount").value;
+            const methodSelect = document.getElementById("cashin-method").value;
+            const parsedAmount = parseFloat(amountInput);
+
+            if (isNaN(parsedAmount) || parsedAmount <= 0) {
+                alert("Please enter a valid amount.");
+                return;
+            }
+
+            // 1. Fetch and mutate balance values securely
+            let user = JSON.parse(localStorage.getItem("gkasUser"));
+            user.balance += parsedAmount;
+            localStorage.setItem("gkasUser", JSON.stringify(user));
+
+            // 2. Format localized time markers 
+            const dateObj = new Date();
+            const timeStr = dateObj.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+
+            // 3. Unshift new active tracking entity row straight into structural history
+            let history = JSON.parse(localStorage.getItem("gkasHistory")) || [];
+            const cashInTx = {
+                name: `Cash In via ${methodSelect}`,
+                date: `Today, ${timeStr}`,
+                amount: `${parsedAmount}`,
+                isNegative: false
+            };
+
+            history.unshift(cashInTx);
+            localStorage.setItem("gkasHistory", JSON.stringify(history));
+
+            // Redirect back onto verified view dashboard layer setup
+            window.location.href = "dashboard.html";
+        }
+
+        function goToDashboard() {
+            window.location.href = "dashboard.html";
+        }
+    </script>
+</body>
+</html>

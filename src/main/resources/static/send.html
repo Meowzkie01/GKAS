@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GKAS - Send Money</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f4f6f9;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px 0;
+        }
+
+        .page-container {
+            background-color: #ffffff;
+            width: 100%;
+            max-width: 420px;
+            min-height: 90vh;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Header Navigation */
+        .nav-header {
+            background: linear-gradient(135deg, #0052cc 0%, #003399 100%);
+            padding: 20px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 5px;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+        }
+
+        .back-btn:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .page-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        /* Current Balance Banner */
+        .balance-banner {
+            background-color: #f0f4ff;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e1e8f5;
+        }
+
+        .balance-label {
+            font-size: 0.85rem;
+            color: #555;
+            font-weight: 600;
+        }
+
+        .balance-amount {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #0052cc;
+        }
+
+        /* Send Money Form */
+        .send-form {
+            padding: 25px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            flex-grow: 1;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-group label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #444;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 14px 14px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .input-wrapper input:focus {
+            border-color: #0052cc;
+        }
+
+        /* Specific styles for currency input prefix */
+        .prefix-input input {
+            padding-left: 35px;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .currency-prefix {
+            position: absolute;
+            left: 15px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .btn-send {
+            background-color: #0052cc;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 82, 204, 0.2);
+            transition: background-color 0.2s, transform 0.1s;
+            margin-top: auto;
+        }
+
+        .btn-send:hover {
+            background-color: #0041a3;
+        }
+
+        .btn-send:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-container">
+        <!-- Top Navigation -->
+        <div class="nav-header">
+            <button class="back-btn" onclick="goBack()">
+                <!-- Back Arrow Icon -->
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            </button>
+            <span class="page-title">Express Send</span>
+        </div>
+
+        <!-- Available Balance Info Banner -->
+        <div class="balance-banner">
+            <span class="balance-label">Your Available Balance</span>
+            <span class="balance-amount" id="form-balance">₱ 0.00</span>
+        </div>
+
+        <!-- Transaction Input Form -->
+        <form class="send-form" id="send-money-form" onsubmit="handleSendMoney(event)">
+            <div class="input-group">
+                <label for="recipient">Recipient Mobile Number / Username</label>
+                <div class="input-wrapper">
+                    <input type="text" id="recipient" placeholder="e.g., 0917XXXXXXX or admin" required>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="amount">Amount to Send</label>
+                <div class="input-wrapper prefix-input">
+                    <span class="currency-prefix">₱</span>
+                    <input type="number" id="amount" step="0.01" min="1" placeholder="0.00" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-send">Send Money</button>
+        </form>
+    </div>
+
+    <script>
+    let currentUser = null;
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const userData = localStorage.getItem("gkasUser");
+
+        if (!userData) {
+            window.location.href = "index.html";
+            return;
+        }
+
+        currentUser = JSON.parse(userData);
+        updateBalanceUI();
+    });
+
+    function updateBalanceUI() {
+        document.getElementById("form-balance").innerText =
+            `₱ ${currentUser.balance.toLocaleString('en-US', {
+                minimumFractionDigits: 2
+            })}`;
+    }
+
+    function handleSendMoney(event) {
+        event.preventDefault();
+
+        const recipient =
+            document.getElementById("recipient").value.trim();
+
+        const amount =
+            parseFloat(document.getElementById("amount").value);
+
+        if (amount <= 0) {
+            alert("Please enter a valid amount.");
+            return;
+        }
+
+        if (amount > currentUser.balance) {
+            alert("Insufficient funds.");
+            return;
+        }
+
+        if (recipient === currentUser.username) {
+            alert("You cannot transfer to your own account.");
+            return;
+        }
+
+        // Deduct balance
+        currentUser.balance -= amount;
+
+        // Save updated user
+        localStorage.setItem(
+            "gkasUser",
+            JSON.stringify(currentUser)
+        );
+
+        // Load history
+        let history =
+            JSON.parse(localStorage.getItem("gkasHistory")) || [];
+
+        // Add new transaction
+        history.unshift({
+            name: recipient,
+            amount: amount,
+            isNegative: true,
+            date: new Date().toLocaleString()
+        });
+
+        localStorage.setItem(
+            "gkasHistory",
+            JSON.stringify(history)
+        );
+
+        // Redirect to success page
+        window.location.href =
+            `success.html?type=Express Send&target=${encodeURIComponent(recipient)}&amount=${amount}`;
+    }
+
+    function goBack() {
+        window.location.href = "dashboard.html";
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GKAS - Bank Transfer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f4f6f9;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px 0;
+        }
+
+        .page-container {
+            background-color: #ffffff;
+            width: 100%;
+            max-width: 420px;
+            min-height: 90vh;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Header Navigation */
+        .nav-header {
+            background: linear-gradient(135deg, #0052cc 0%, #003399 100%);
+            padding: 20px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 5px;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+        }
+
+        .back-btn:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .page-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        /* Current Balance Banner */
+        .balance-banner {
+            background-color: #f0f4ff;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e1e8f5;
+        }
+
+        .balance-label {
+            font-size: 0.85rem;
+            color: #555;
+            font-weight: 600;
+        }
+
+        .balance-amount {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #0052cc;
+        }
+
+        /* Bank Transfer Form */
+        .transfer-form {
+            padding: 25px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            flex-grow: 1;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .input-group label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #444;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper input, .input-wrapper select {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            font-size: 1rem;
+            outline: none;
+            background-color: #fff;
+            transition: border-color 0.2s;
+        }
+
+        .input-wrapper input:focus, .input-wrapper select:focus {
+            border-color: #0052cc;
+        }
+
+        /* Currency Styling */
+        .prefix-input input {
+            padding-left: 35px;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .currency-prefix {
+            position: absolute;
+            left: 15px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .btn-transfer {
+            background-color: #0052cc;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 82, 204, 0.2);
+            transition: background-color 0.2s, transform 0.1s;
+            margin-top: auto;
+        }
+
+        .btn-transfer:hover {
+            background-color: #0041a3;
+        }
+
+        .btn-transfer:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-container">
+        <!-- Top Navigation Header -->
+        <div class="nav-header">
+            <button class="back-btn" onclick="goBack()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            </button>
+            <span class="page-title">Bank Transfer</span>
+        </div>
+
+        <!-- Wallet Balance Info -->
+        <div class="balance-banner">
+            <span class="balance-label">Your Available Balance</span>
+            <span class="balance-amount" id="form-balance">₱ 0.00</span>
+        </div>
+
+        <!-- Bank Transfer Input Form -->
+        <form class="transfer-form" id="bank-transfer-form" onsubmit="handleBankTransfer(event)">
+            <div class="input-group">
+                <label for="bank-select">Select Partner Bank</label>
+                <div class="input-wrapper">
+                    <select id="bank-select" required>
+                        <option value="" disabled selected>Choose a bank...</option>
+                        <option value="BPI">BPI (Bank of the Philippine Islands)</option>
+                        <option value="BDO">BDO Unibank</option>
+                        <option value="Metrobank">Metrobank</option>
+                        <option value="Landbank">Landbank</option>
+                        <option value="Unionbank">Unionbank</option>
+                        <option value="Security Bank">Security Bank</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="account-number">Account Number</label>
+                <div class="input-wrapper">
+                    <input type="text" id="account-number" placeholder="Enter bank account number" pattern="[0-9\-]+" title="Please enter numbers only" required>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="account-name">Account Name</label>
+                <div class="input-wrapper">
+                    <input type="text" id="account-name" placeholder="Enter recipient full name" required>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="amount">Amount to Transfer</label>
+                <div class="input-wrapper prefix-input">
+                    <span class="currency-prefix">₱</span>
+                    <input type="number" id="amount" step="0.01" min="1" placeholder="0.00" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-transfer">Send to Bank</button>
+        </form>
+    </div>
+
+    <script>
+
+        let currentUser = null;
+
+        document.addEventListener("DOMContentLoaded", () => {
+
+            const userData = localStorage.getItem("gkasUser");
+
+            if (!userData) {
+                window.location.href = "index.html";
+                return;
+            }
+
+            currentUser = JSON.parse(userData);
+
+            updateBalanceUI();
+        });
+
+        function updateBalanceUI() {
+
+            document.getElementById("form-balance").innerText =
+                `₱ ${currentUser.balance.toLocaleString('en-US', {
+                    minimumFractionDigits: 2
+                })}`;
+        }
+
+        function handleBankTransfer(event) {
+
+            event.preventDefault();
+
+            const bank =
+                document.getElementById("bank-select").value;
+
+            const accountNumber =
+                document.getElementById("account-number").value.trim();
+
+            const accountName =
+                document.getElementById("account-name").value.trim();
+
+            const amount =
+                parseFloat(document.getElementById("amount").value);
+
+            if (!bank) {
+                alert("Please select a bank.");
+                return;
+            }
+
+            if (!accountNumber) {
+                alert("Please enter an account number.");
+                return;
+            }
+
+            if (!accountName) {
+                alert("Please enter an account name.");
+                return;
+            }
+
+            if (amount <= 0) {
+                alert("Please enter a valid amount.");
+                return;
+            }
+
+            if (amount > currentUser.balance) {
+                alert("Insufficient funds for this transaction.");
+                return;
+            }
+
+            // Update balance
+            currentUser.balance -= amount;
+
+            localStorage.setItem(
+                "gkasUser",
+                JSON.stringify(currentUser)
+            );
+
+            // Load existing transaction history
+            let history =
+                JSON.parse(localStorage.getItem("gkasHistory")) || [];
+
+            // Add bank transfer transaction
+            history.unshift({
+                name: `Bank Transfer to ${accountName} (${bank})`,
+                amount: amount,
+                isNegative: true,
+                date: new Date().toLocaleString()
+            });
+
+            localStorage.setItem(
+                "gkasHistory",
+                JSON.stringify(history)
+            );
+
+            // Redirect to success page
+            window.location.href =
+                `success.html?type=Bank Transfer&target=${encodeURIComponent(accountName)}&bank=${encodeURIComponent(bank)}&account=${encodeURIComponent(accountNumber)}&amount=${amount}`;
+        }
+
+        function goBack() {
+            window.location.href = "dashboard.html";
+        }
+
+        </script>
+</body>
+</html>
