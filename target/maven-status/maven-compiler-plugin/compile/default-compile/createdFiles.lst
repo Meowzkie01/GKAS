@@ -6,14 +6,12 @@ com/gkas/model/User.class
 com/gkas/model/dto/AuthResponse.class
 com/gkas/model/dto/RegisterRequest.class
 com/gkas/security/SecurityConfig.class
-com/gkas/controller/TransactionController.class
 com/gkas/repository/UserRepository.class
 com/gkas/security/JwtAuthenticationFilter.class
 com/gkas/service/TransactionService.class
 com/gkas/GkasApplication.class
 com/gkas/model/dto/TransactionRequest.class
 com/gkas/model/Transaction$TransactionType.class
-com/gkas/controller/AuthController.class
 com/gkas/repository/TransactionRepository.class
 com/gkas/model/Transaction.class
 com/gkas/model/Transaction$TransactionStatus.class
