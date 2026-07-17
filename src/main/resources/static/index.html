@@ -183,10 +183,11 @@
     function loginUser(event) {
         event.preventDefault();
 
-        const username = document.getElementById("username").value;
-        const password = document.getElementById("password").value;
+        const inputIdentifier = document.getElementById("username").value.trim();
+        const passwordInput = document.getElementById("password").value;
 
-        const users = [
+        // 1. Core default application accounts
+        const defaultUsers = [
             {
                 username: "09184540238",
                 password: "1234",
@@ -207,10 +208,22 @@
             }
         ];
 
-        const user = users.find(
-            u => u.username === username && u.password === password
+        // 2. Fetch dynamically registered user profiles from browser storage
+        const registeredUsers = JSON.parse(localStorage.getItem("gkasUsersList")) || [];
+
+        // 3. Search default accounts first
+        let user = defaultUsers.find(
+            u => u.username === inputIdentifier && u.password === passwordInput
         );
 
+        // 4. If not found, search through registered users list
+        if (!user) {
+            user = registeredUsers.find(
+                u => (u.mobile === inputIdentifier || u.username === inputIdentifier) && u.password === passwordInput
+            );
+        }
+
+        // 5. Authenticate session if matching data object resolves
         if (user) {
             localStorage.setItem("gkasUser", JSON.stringify(user));
             window.location.href = "dashboard.html";

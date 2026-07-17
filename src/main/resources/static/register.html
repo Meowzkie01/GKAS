@@ -1,83 +1,88 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>GKAS - Register</title>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GKAS - Create Account</title>
     <style>
-        body {
-            background-color: #0052cc;
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        .container {
-            background: white;
-            width: 400px;
-            padding: 30px;
-            border-radius: 20px;
-        }
-
-        h1 {
-            text-align: center;
-            color: #0052cc;
-        }
-
-        input {
-            width: 100%;
-            padding: 12px;
-            margin-top: 5px;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-        }
-
-        button {
-            width: 100%;
-            padding: 15px;
-            background: #0052cc;
-            color: white;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-        }
-
-        a {
-            display: block;
-            text-align: center;
-            margin-top: 15px;
-            color: #0052cc;
-            text-decoration: none;
-        }
+        /* Your existing CSS styling goes here */
+        * { box-sizing: border-box; font-family: sans-serif; }
+        body { background-color: #0052cc; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .card { background: white; padding: 40px; border-radius: 28px; width: 100%; max-width: 500px; }
+        .brand-logo { font-size: 2.2rem; font-weight: 800; color: #0052cc; text-align: center; margin-bottom: 20px; }
+        .title { font-size: 1.5rem; font-weight: 700; margin-bottom: 20px; }
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; margin-bottom: 5px; font-weight: 600; }
+        .input-group input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; }
+        .btn-submit { width: 100%; background-color: #0052cc; color: white; border: none; padding: 16px; border-radius: 30px; font-size: 1rem; font-weight: 600; cursor: pointer; margin-top: 20px; }
     </style>
 </head>
 <body>
 
-<div class="container">
+    <div class="card">
+        <div class="brand-logo">GKAS</div>
+        <h2 class="title">Create Account</h2>
 
-    <h1>GKAS</h1>
+        <!-- PASTE THE FORM HERE -->
+        <form id="registerForm" onsubmit="handleRegistration(event)">
+            <div class="input-group">
+                <label>Full Name</label>
+                <input type="text" id="regName" required placeholder="Mau">
+            </div>
+            <div class="input-group">
+                <label>Mobile Number</label>
+                <input type="text" id="regMobile" required placeholder="09397874835">
+            </div>
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" id="regPassword" required placeholder="••••">
+            </div>
+            <div class="input-group">
+                <label>Confirm Password</label>
+                <input type="password" id="regConfirmPassword" required placeholder="••••">
+            </div>
 
-    <h3>Create Account</h3>
+            <button type="submit" class="btn-submit">Create Account</button>
+        </form>
 
-    <label>Full Name</label>
-    <input type="text" placeholder="Enter Full Name">
+    </div>
 
-    <label>Mobile Number</label>
-    <input type="text" placeholder="09XXXXXXXXX">
+    <!-- The JavaScript processing logic goes right before the closing body tag -->
+    <script>
+        function handleRegistration(event) {
+            event.preventDefault();
 
-    <label>Password</label>
-    <input type="password" placeholder="Enter Password">
+            const name = document.getElementById("regName").value.trim();
+            const mobile = document.getElementById("regMobile").value.trim();
+            const password = document.getElementById("regPassword").value;
+            const confirmPassword = document.getElementById("regConfirmPassword").value;
 
-    <label>Confirm Password</label>
-    <input type="password" placeholder="Confirm Password">
+            if (password !== confirmPassword) {
+                alert("Passwords do not match!");
+                return;
+            }
 
-    <button>Create Account</button>
+            let gkasUsersList = JSON.parse(localStorage.getItem("gkasUsersList")) || [];
 
-    
+            const userExists = gkasUsersList.some(user => user.mobile === mobile);
+            if (userExists) {
+                alert("An account with this mobile number already exists.");
+                return;
+            }
 
-</div>
+            const newUser = {
+                name: name,
+                mobile: mobile,
+                password: password,
+                balance: 0.00
+            };
 
+            gkasUsersList.push(newUser);
+            localStorage.setItem("gkasUsersList", JSON.stringify(gkasUsersList));
+
+            // Redirects to your new success file
+            window.location.href = "register-success.html";
+        }
+    </script>
 </body>
 </html>
