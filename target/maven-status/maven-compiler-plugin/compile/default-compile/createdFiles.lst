@@ -4,8 +4,11 @@ com/gkas/model/dto/AuthResponse.class
 com/gkas/model/dto/RegisterRequest.class
 com/gkas/security/SecurityConfig.class
 com/gkas/repository/UserRepository.class
+com/gkas/model/dto/AuthResponse$AuthResponseBuilder.class
 com/gkas/repository/TransactionRepository.class
 com/gkas/model/dto/TransactionResponse.class
+com/gkas/model/dto/TransactionResponse$TransactionResponseBuilder.class
+com/gkas/model/Transaction$TransactionBuilder.class
 com/gkas/model/dto/LoginRequest.class
 com/gkas/security/JwtService.class
 com/gkas/security/JwtAuthenticationFilter.class
@@ -15,3 +18,4 @@ com/gkas/model/dto/TransactionRequest.class
 com/gkas/model/Transaction$TransactionType.class
 com/gkas/model/Transaction.class
 com/gkas/model/Transaction$TransactionStatus.class
+com/gkas/model/User$UserBuilder.class
